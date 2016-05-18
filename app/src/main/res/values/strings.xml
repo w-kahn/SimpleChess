@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">SimpleChess</string>
+    <string name="app_name">最简单棋</string>
+    <string name="white_goal">白棋胜利！</string>
+    <string name="black_goal">黑棋胜利！</string>
 </resources>
