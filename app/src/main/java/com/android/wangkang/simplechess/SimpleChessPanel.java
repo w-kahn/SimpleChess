@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -44,6 +43,13 @@ public class SimpleChessPanel extends View {
     public static final int SELECT_WHITE_PIECES=3;
     public static final int SELECT_BLACK_PIECES=4;
 
+    //双方共走的步数
+    private int mCounts=0;
+    //哪个先走
+    private int mFirst=0;
+    //是够轮到该棋子走
+    private boolean isMoveRight=true;
+
     private int[][] positionCondition={
             {WHITE_PIECES,WHITE_PIECES,WHITE_PIECES},
             {NO_PIECES,NO_PIECES,NO_PIECES},
@@ -67,14 +73,14 @@ public class SimpleChessPanel extends View {
 
     private void init() {
         //画笔的一些初始化
-        mPaint.setColor(0x88000000);
+        mPaint.setColor(0x88ffffff);
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
         mPaint.setStyle(Paint.Style.STROKE);
 
         //初始化棋子
-        mWhitePieces= BitmapFactory.decodeResource(getResources(),R.drawable.white_pieces);
-        mBlackPieces= BitmapFactory.decodeResource(getResources(),R.drawable.black_pieces);
+        mWhitePieces= BitmapFactory.decodeResource(getResources(),R.drawable.white_chess);
+        mBlackPieces= BitmapFactory.decodeResource(getResources(),R.drawable.black_chess);
         mSelectedWhitePieces=mWhitePieces;
         mSelectedBlackPieces=mBlackPieces;
     }
@@ -138,20 +144,31 @@ public class SimpleChessPanel extends View {
                     positionCondition[downj][downi]=SELECT_BLACK_PIECES;
                 }*/
                 movingPieces=positionCondition[downj][downi];
+
                 if (positionCondition[downj][downi]>0){
+                    //如果有棋子则放大显示
                     positionCondition[downj][downi]=positionCondition[downj][downi]+2;
                 }
                 invalidate();
-                Log.d("Touch","DOWN");
+                //Log.d("Touch","DOWN");
                 return true;
 
             case MotionEvent.ACTION_MOVE:
                 positionCondition[downj][downi]=NO_PIECES;
                 mPointF.x=event.getX();
                 mPointF.y=event.getY();
-                isMoving=true;
+                //正在移动
+                if (mFirst==0
+                        ||(mFirst==movingPieces&&mCounts%2==0)     //是否轮到的条件，如果没轮到则不移动
+                        ||(mFirst!=movingPieces&&mCounts%2==1)){
+                    isMoving=true;
+                }else {
+                    //如果不轮到走的话之前的要放大显示
+                    positionCondition[downj][downi] =movingPieces+ 2;
+                }
+
                 invalidate();
-                Log.d("Touch","MOVE");
+                //Log.d("Touch","MOVE");
                 return true;
             case MotionEvent.ACTION_UP:
 
@@ -164,13 +181,19 @@ public class SimpleChessPanel extends View {
                         &&Math.abs(upi-downi)<=1   //不能走两格以上
                         &&Math.abs(upj-downj)<=1
                         &&!judge
+                        &&Math.abs(upi-downi)+Math.abs(upj-downj)!=0 //不能原地不动
+                        &&isMoving
                         ){
                     positionCondition[upj][upi]=movingPieces;
+                    mCounts=mCounts+1;
+                    //判断是哪个棋子先走
+                    if (mCounts==1){
+                        mFirst=movingPieces;
+                    }
                     //positionCondition[downj][downi]=NO_PIECES;
                 }else {
                     positionCondition[downj][downi]=movingPieces;
                 }
-
                 //遍历所有点使不再放大
                 /*for (int i1=0;i1<=Max_LINE;i1++){
                     for (int j1=0;j1<=Max_LINE;j1++){
@@ -180,8 +203,9 @@ public class SimpleChessPanel extends View {
                 }*/
                 isMoving=false;
                 invalidate();
+                //检查是否游戏结束
                 checkIsGameOver();
-                Log.d("Touch","UP");
+                //Log.d("Touch","UP");
                 break;
         }
         return super.onTouchEvent(event);
@@ -274,5 +298,20 @@ public class SimpleChessPanel extends View {
         int b= (int) (w-lineHeight/4);
         canvas.drawLine(a,a,b,b,mPaint);
         canvas.drawLine(a,b,b,a,mPaint);
+    }
+    //重新开始游戏
+    public void restartGame(){
+        for (int i=0;i<=Max_LINE;i++){
+            positionCondition[0][i]=WHITE_PIECES;
+        }
+        for (int i=0;i<=Max_LINE;i++){
+            positionCondition[1][i]=NO_PIECES;
+        }
+        for (int i=0;i<=Max_LINE;i++){
+            positionCondition[2][i]=BLACK_PIECES;
+        }
+        mFirst=0;
+        mCounts=0;
+        invalidate();
     }
 }

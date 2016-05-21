@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">最简单棋</string>
-    <string name="white_goal">白棋胜利！</string>
-    <string name="black_goal">黑棋胜利！</string>
+    <string name="white_goal">钢铁侠胜利！</string>
+    <string name="black_goal">美国队长胜利！</string>
+    <string name="restart_game">再来一局</string>
+    <string name="rules">规则</string>
+    <string name="rules_content">规则非常简单，你只需要将你的三颗棋子连成一条线就能获得胜利，
+    无论横着的，竖着的，还是斜着的。不过一定要通过中间的点哦，在边上的不算哦！</string>
 </resources>
