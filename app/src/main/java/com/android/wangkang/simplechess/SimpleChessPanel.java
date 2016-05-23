@@ -103,7 +103,7 @@ public class SimpleChessPanel extends View {
         }else if (heightMode==MeasureSpec.UNSPECIFIED){
             width=widthSize;
         }
-        setMeasuredDimension(width,width);
+        setMeasuredDimension(width,width);//是个正方形的棋盘
     }
 
     //二，获取View的相关尺寸
@@ -133,16 +133,6 @@ public class SimpleChessPanel extends View {
                 int downY= (int) event.getY();
                 downi= (int) ((downX+mLineHeight/4)/mLineHeight);
                 downj= (int) ((downY+mLineHeight/4)/mLineHeight);
-                //判断该位子是白棋还是黑棋
-              /*  if (positionCondition[downj][downi]==WHITE_PIECES){
-                    picked=positionCondition[downj][downi];
-                    movingPieces=WHITE_PIECES;
-                    positionCondition[downj][downi]=SELECT_WHITE_PIECES;
-                }else if (positionCondition[downj][downi]==BLACK_PIECES){
-                    picked=positionCondition[downj][downi];
-                    movingPieces=BLACK_PIECES;
-                    positionCondition[downj][downi]=SELECT_BLACK_PIECES;
-                }*/
                 movingPieces=positionCondition[downj][downi];
 
                 if (positionCondition[downj][downi]>0){
@@ -177,12 +167,12 @@ public class SimpleChessPanel extends View {
                 int upi= (int) ((upX+mLineHeight/4)/mLineHeight);
                 int upj= (int) ((upY+mLineHeight/4)/mLineHeight);
                 boolean judge=(upi+upj)%2!=0&&(downi+downj)%2!=0;  //不能走在规定外的斜线
-                if (positionCondition[upj][upi]==NO_PIECES
+                if (positionCondition[upj][upi]==NO_PIECES  //落点必须没有棋子
                         &&Math.abs(upi-downi)<=1   //不能走两格以上
                         &&Math.abs(upj-downj)<=1
-                        &&!judge
+                        &&!judge  //不能走规定外的斜线
                         &&Math.abs(upi-downi)+Math.abs(upj-downj)!=0 //不能原地不动
-                        &&isMoving
+                        &&isMoving  //确定移动了
                         ){
                     positionCondition[upj][upi]=movingPieces;
                     mCounts=mCounts+1;
@@ -190,17 +180,10 @@ public class SimpleChessPanel extends View {
                     if (mCounts==1){
                         mFirst=movingPieces;
                     }
-                    //positionCondition[downj][downi]=NO_PIECES;
                 }else {
+                    //棋子回到原位
                     positionCondition[downj][downi]=movingPieces;
                 }
-                //遍历所有点使不再放大
-                /*for (int i1=0;i1<=Max_LINE;i1++){
-                    for (int j1=0;j1<=Max_LINE;j1++){
-                        if (positionCondition[i1][j1]>2)
-                            positionCondition[i1][j1]=positionCondition[i1][j1]-2;
-                    }
-                }*/
                 isMoving=false;
                 invalidate();
                 //检查是否游戏结束
