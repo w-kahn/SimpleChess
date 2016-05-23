@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -296,5 +298,50 @@ public class SimpleChessPanel extends View {
         mFirst=0;
         mCounts=0;
         invalidate();
+    }
+
+    //存储View
+
+    private static final String INSTANCE="instance";
+    private static final String INSTANCE_POSITION_CONDITION="instance_position";
+    private static final String INSTANCE_FIRST="instance_first";
+    private static final String INSTANCE_COUNTS="instance_counts";
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle=new Bundle();
+        bundle.putParcelable(INSTANCE,super.onSaveInstanceState());
+        bundle.putInt(INSTANCE_COUNTS,mCounts);
+        bundle.putInt(INSTANCE_FIRST,mFirst);
+        //转化为一维数组
+        int[] oneArray=new int[9];
+        for (int i=0;i<=Max_LINE;i++) {
+            for (int j = 0; j <= Max_LINE; j++) {
+                oneArray[i*3+j]=positionCondition[i][j];
+            }
+        }
+
+        bundle.putIntArray(INSTANCE_POSITION_CONDITION,oneArray);
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle){
+            Bundle bundle=(Bundle)state;
+            mCounts=bundle.getInt(INSTANCE_COUNTS);
+            mFirst=bundle.getInt(INSTANCE_FIRST);
+            int[] oneArray;
+            oneArray=bundle.getIntArray(INSTANCE_POSITION_CONDITION);
+            for (int i=0;i<=Max_LINE;i++) {
+                for (int j = 0; j <= Max_LINE; j++) {
+                    positionCondition[i][j]=oneArray[i*3+j];
+                }
+            }
+
+            super.onRestoreInstanceState(bundle.getParcelable(INSTANCE));
+            return;
+        }
+        super.onRestoreInstanceState(state);
     }
 }
